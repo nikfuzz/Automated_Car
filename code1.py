@@ -1,3 +1,14 @@
+#
+# def keys_to_output(keys):
+#     #(A,W,D]
+#     output = [0,0,0]
+#     if 'A' in keys:
+#         output[0]=1
+#     elif 'W' in keys:
+#         output[1]=1
+#     elif 'D' in keys:
+#         output[2]=1
+#     return output
 import numpy as np
 import cv2
 import time
@@ -28,8 +39,7 @@ def process_img(image):
 
     processed_img = cv2.GaussianBlur(processed_img, (5, 5), 0)
 
-    vertices = np.array([[10, 500], [10, 300], [300, 200], [500, 200], [800, 300], [800, 500],
-                         ], np.int32)
+    vertices = np.array([[10, 469], [10, 281], [300, 188], [500, 188], [800, 281], [800, 469]], np.int32)
 
     processed_img = roi(processed_img, [vertices])
 
@@ -62,29 +72,38 @@ def process_img(image):
 
 def straight():
     PressKey(W)
+    time.sleep(0.04)
     ReleaseKey(A)
     ReleaseKey(D)
-
+    ReleaseKey(W)
 
 def left():
-    PressKey(A)
-    ReleaseKey(W)
-    ReleaseKey(D)
-    ReleaseKey(A)
+    # for i in range(10):
+        PressKey(A)
+        ReleaseKey(W)
+        PressKey(W)
+        time.sleep(0.04)
+        ReleaseKey(D)
+        ReleaseKey(A)
 
 
 def right():
-    PressKey(D)
-    ReleaseKey(A)
-    ReleaseKey(W)
-    ReleaseKey(D)
+    # for i in range(1):
+        PressKey(D)
+        ReleaseKey(W)
+        PressKey(W)
+        time.sleep(0.04)
+        ReleaseKey(A)
+        ReleaseKey(D)
 
 
 def slow_ya_roll():
     ReleaseKey(W)
     ReleaseKey(A)
     ReleaseKey(D)
-
+    PressKey(S)
+    time.sleep(0.04)
+    ReleaseKey(S)
 
 for i in list(range(4))[::-1]:
     print(i + 1)
@@ -92,7 +111,7 @@ for i in list(range(4))[::-1]:
 
 last_time = time.time()
 while True:
-    screen = grab_screen(region=(0, 40, 800, 640))
+    screen = grab_screen(region=(0, 40, 800, 600))
     print('Frame took {} seconds'.format(time.time() - last_time))
     last_time = time.time()
     new_screen, original_image, m1, m2 = process_img(screen)
@@ -100,12 +119,13 @@ while True:
     cv2.imshow('window2', cv2.cvtColor(original_image, cv2.COLOR_BGR2RGB))
 
     if m1 < 0 and m2 < 0:
-        print("\****************************************************************************************************************************************************************************************************wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww")
         right()
     elif m1 > 0 and m2 > 0:
         left()
-    else:
+    elif (m1>0 and m2<0) or (m1<0 and m2>0) :
         straight()
+    else:
+        slow_ya_roll()
 
     # cv2.imshow('window',cv2.cvtColor(screen, cv2.COLOR_BGR2RGB))
     if cv2.waitKey(25) & 0xFF == ord('q'):
